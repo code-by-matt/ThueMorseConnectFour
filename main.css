@@ -1,0 +1,56 @@
+h1 {
+    max-width: 500px;
+    margin: auto;
+    text-align: center;
+    padding: 10px;
+    font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif
+}
+
+p {
+    max-width: 600px;
+    margin: auto;
+    text-align: center;
+    padding: 10px;
+    font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif
+}
+
+button {
+    height: 20px;
+    width: 80px;
+    font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif
+}
+
+.smallSquare {
+    width: 30px;
+    display: table-cell;
+    font-size: 14pt;
+    vertical-align: middle;
+    border: black solid 2px;
+    text-align: center;
+}
+
+.gameboard {
+    display: table;
+    max-width: 500px;
+    margin: auto;
+}
+
+.meter {
+    display: table;
+    border-collapse: collapse;
+    height: 30px;
+    max-width: 500px;
+    margin: auto;
+}
+
+.bigSquare {
+    width: 60px;
+    height: 60px;
+    border: black solid 1.5px;
+}
+
+.column {
+    width: 50px;
+    display: table-cell;
+    margin: auto;
+}

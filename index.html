@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Thue-Morse Connect Four</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="main.css">
+    </head>
+    
+    <script>
+        // This number determines the color of the next piece to be played. 
+        var currentTurn;
+        
+        // The game board has seven columns, each six squares in height. The top square of each column is number 0, and the numbers increase as you go down the column. The array below lists the bottom-most empty square in each column. At the start, all squares are empty, so the array is all fives.
+        var bottoms = [5, 5, 5, 5, 5, 5, 5];
+        
+        // These functions deal with calculating the color of the next few pieces to be played based on the value of currentTurn.
+        
+            // Given the turn number, returns the color of that turn.
+            // The color is based on the Thue-Morse sequence.
+            function color(turn) {
+                for (var i = 0; turn != 0; i++) {
+                    turn = turn & (turn - 1);
+                }
+                if (i % 2 ==0) {
+                    return "red";
+                }
+                else {
+                    return "blue";
+                }
+            }
+
+            // Puts the next eight turns into the turn counter.
+            function changeCounter() {
+                for (var i = 0; i < 8; i++) {
+                    document.getElementsByClassName("smallSquare")
+                        .item(i + 1).style.backgroundColor = color(currentTurn + i);
+                }
+            }
+        
+            // Clears the game board, resets bottoms, sets the current turn to a random even integer between 2 and 10000, then displays this in the turn counter. Evenness ensures that there are the same number of red and blue turns if the game fills the entire board.
+            function start() {
+                for (var i = 0; i < 42; i++) {
+                    document.getElementsByClassName("bigSquare").item(i).style.backgroundColor = "white";
+                }
+                for (var i = 0; i < 7; i++) {
+                    bottoms[i] = 5;
+                }
+                currentTurn = 2 * (Math.floor(Math.random() * 5000) + 1);
+                // document.getElementById("turn").innerHTML = currentTurn;
+                changeCounter();
+            }
+        
+        // These function deal with checking if there are four pieces of the the same color in a row. In the following comments, the term "target piece" means "the topmost piece in the nth column."
+        
+            // Counts the number of pieces of the current turn's color adjacent on the left of the target piece.
+            function onLeft(n) {
+                var level = bottoms[n];
+                var count = 0;
+
+                for (var i = 1; (n - i) >= 0; i++) {
+                    var square = document.getElementsByClassName("column").item(n - i)
+                        .getElementsByClassName("bigSquare").item(level);
+                    if (square.style.backgroundColor == color(currentTurn)) {
+                        count++;
+                    }
+                    else return count;
+                }
+                return count;
+            }
+
+            // Counts the number of pieces of the current turn's color adjacent on the right of the target piece.
+            function onRight(n) {
+                var level = bottoms[n];
+                var count = 0;
+
+                for (var i = 1; (n + i) <= 6; i++) {
+                    var square = document.getElementsByClassName("column").item(n + i)
+                        .getElementsByClassName("bigSquare").item(level);
+                    if (square.style.backgroundColor == color(currentTurn)) {
+                        count++;
+                    }
+                    else return count;
+                }
+                return count;
+            }
+
+            // Counts the number of pieces of the current turn's color underneath the target piece.
+            function below(n) {
+                var level = bottoms[n];
+                var count = 0;
+
+                for (var i = 1; (level + i) <= 5; i++) {
+                    var square = document.getElementsByClassName("column").item(n)
+                        .getElementsByClassName("bigSquare").item(level + i);
+                    if (square.style.backgroundColor == color(currentTurn)) {
+                        count++;
+                    }
+                    else return count;
+                }
+                return count;
+            }
+
+            // Counts the number of adjacent pieces of the current turn's color north-west of the target piece.
+            function onNW(n) {
+                var level = bottoms[n];
+                var count = 0;
+
+                for (var i = 1; ((n - i) >= 0) && ((level - i) >= 0); i++) {
+                    var square = document.getElementsByClassName("column").item(n - i)
+                        .getElementsByClassName("bigSquare").item(level - i);
+                    if (square.style.backgroundColor == color(currentTurn)) {
+                        count++;
+                    }
+                    else return count;
+                }
+                return count;
+            }
+
+            // Counts the number of adjacent pieces of the current turn's color south-east of the target piece.
+            function onSE(n) {
+                var level = bottoms[n];
+                var count = 0;
+
+                for (var i = 1; ((n + i) <= 6) && ((level + i) <= 5); i++) {
+                    var square = document.getElementsByClassName("column").item(n + i)
+                        .getElementsByClassName("bigSquare").item(level + i);
+                    if (square.style.backgroundColor == color(currentTurn)) {
+                        count++;
+                    }
+                    else return count;
+                }
+                return count;
+            }
+
+            // Counts the number of adjacent pieces of the current turn's color north-east of the target piece.
+            function onNE(n) {
+                var level = bottoms[n];
+                var count = 0;
+
+                for (var i = 1; ((n + i) <= 6) && ((level - i) >= 0); i++) {
+                    var square = document.getElementsByClassName("column").item(n + i)
+                        .getElementsByClassName("bigSquare").item(level - i);
+                    if (square.style.backgroundColor == color(currentTurn)) {
+                        count++;
+                    }
+                    else return count;
+                }
+                return count;
+            }
+
+            // Counts the number of adjacent pieces of the current turn's color south-west of the target piece.
+            function onSW(n) {
+                var level = bottoms[n];
+                var count = 0;
+
+                for (var i = 1; ((n - i) >= 0) && ((level + i) <= 5); i++) {
+                    var square = document.getElementsByClassName("column").item(n - i)
+                        .getElementsByClassName("bigSquare").item(level + i);
+                    if (square.style.backgroundColor == color(currentTurn)) {
+                        count++;
+                    }
+                    else return count;
+                }
+                return count;
+            }
+
+            // Checks if the target piece is part of a win.
+            function win(n) {
+                var hz = onLeft(n) + onRight(n) + 1;
+                var vt = below(n) + 1;
+                var dg = onNW(n) + onSE(n) + 1;
+                var ad = onNE(n) + onSW(n) + 1;
+                
+                // document.getElementById("hz").innerHTML = "horizontal: " + hz;
+                // document.getElementById("vt").innerHTML = "vertical: " + vt;
+                // document.getElementById("dg").innerHTML = "diagonal: " +dg;
+                // document.getElementById("ad").innerHTML = "anti-diagonal: " + ad;
+
+                return (hz >= 4) || (vt >= 4) || (dg >= 4) || (ad >= 4);
+            }
+
+        
+        // Given n, puts a piece of the current turn's color into the bottom-most square of the nth column.
+        function dropPiece(n) {
+            
+            // Grabs the bottom-most square in the nth column.
+            var square = document.getElementsByClassName("column").item(n)
+                .getElementsByClassName("bigSquare").item(bottoms[n]);
+            
+            // Drops a piece of the current turn's color into that square.
+            square.style.backgroundColor = color(currentTurn);
+            
+            if (win(n)) {
+                    
+                // This prevents further pieces from being played.
+                for (var i = 0; i < 7; i++) {
+                    bottoms[i] = -1;
+                }
+
+                // Changes the entire turn counter to be of the winning color.
+                for (var i = 0; i < 8; i++) {
+                    document.getElementsByClassName("smallSquare")
+                        .item(i + 1).style.backgroundColor = color(currentTurn);
+                }
+            }
+            else {
+                bottoms[n]--;
+                currentTurn++;
+                changeCounter();
+            }
+        }
+    </script>
+    
+    <body onload="start()">
+        <h1>Thue-Morse Connect Four</h1>
+        
+        <div class="gameboard">
+            <div class="column" onclick="dropPiece(0)">
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+            </div>
+
+            <div class="column" onclick="dropPiece(1)">
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+            </div>
+
+            <div class="column" onclick="dropPiece(2)">
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+            </div>
+            
+            <div class="column" onclick="dropPiece(3)">
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+            </div>
+            
+            <div class="column" onclick="dropPiece(4)">
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+            </div>
+            
+            <div class="column" onclick="dropPiece(5)">
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+            </div>
+            
+            <div class="column" onclick="dropPiece(6)">
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+                <div class="bigSquare"></div>
+            </div>
+        </div>
+            
+        <p>Click on a column to drop in a piece. Upcoming pieces are shown below. Experiencing issues? Contact me at matthewfelixyuan@gmail.com.</p>
+
+        <div class = "meter">
+            <div class="smallSquare">></div>
+            <div class="smallSquare"></div>
+            <div class="smallSquare"></div>
+            <div class="smallSquare"></div>
+            <div class="smallSquare"></div>
+            <div class="smallSquare"></div>
+            <div class="smallSquare"></div>
+            <div class="smallSquare"></div>
+            <div class="smallSquare"></div>
+        </div>
+
+        <p><button onclick="start()">New Game</button></p>
+        <p id="turn"></p>
+        <p id="hz"></p>
+        <p id="vt"></p>
+        <p id="dg"></p>
+        <p id="ad"></p>
+    </body>
+</html>
