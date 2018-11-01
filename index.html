@@ -7,20 +7,40 @@
     </head>
     
     <script>
-        // This number determines the color of the next piece to be played. 
+        // This boolean states whether or not the game has been won.
+        var didSomebodyWin = false;
+        
+        // This number determines the color of the next piece to be played.
+        // The start() method sets this number to a random even integer between 2 and 10000,
+        // where evenness ensures that red and blue play the same number of times
+        // if the game fills the entire board.
         var currentTurn;
         
-        // The game board has seven columns, each six squares in height. The top square of each column is number 0, and the numbers increase as you go down the column. The array below lists the bottom-most empty square in each column. At the start, all squares are empty, so the array is all fives.
-        var bottoms = [5, 5, 5, 5, 5, 5, 5];
+        // The game board has seven columns, each six squares in height.
+        // The top square of each column is number 0, and the numbers increase as you go down the column.
+        // The array below lists the bottom-most empty square in each column.
+        // At the beginning of a game, all squares are empty,
+        // so start() makes this array is all 5s.
+        var bottoms = [];
         
-        // These functions deal with calculating the color of the next few pieces to be played based on the value of currentTurn.
+        // This array keeps a record of all the moves made so far. Each move is identified by
+        // the number of the column it was played in. A value of -1 means that the game hasn't
+        // progressed that far yet, so start() makes this array all -1s.
+        var history = [];
+        
+        
+        // The following functions deal with calculating the color of the next few pieces
+        // to be played based on the value of currentTurn.
         
             // Given the turn number, returns the color of that turn.
             // The color is based on the Thue-Morse sequence.
             function color(turn) {
+                
+                // By the end of this loop, i is the number of 1s in the binary representation of turn.
                 for (var i = 0; turn != 0; i++) {
                     turn = turn & (turn - 1);
                 }
+                
                 if (i % 2 ==0) {
                     return "red";
                 }
@@ -29,31 +49,21 @@
                 }
             }
 
-            // Puts the next eight turns into the turn counter.
+            // Puts the colors of the next eight turns into the turn counter.
             function changeCounter() {
                 for (var i = 0; i < 8; i++) {
                     document.getElementsByClassName("smallSquare")
                         .item(i + 1).style.backgroundColor = color(currentTurn + i);
                 }
             }
+
+
+        // The following functions deal with checking if somebody won.
+        // In the following comments, the term "target piece"
+        // means "the topmost piece in the nth column."
         
-            // Clears the game board, resets bottoms, sets the current turn to a random even integer between 2 and 10000, then displays this in the turn counter. Evenness ensures that there are the same number of red and blue turns if the game fills the entire board.
-            function start() {
-                for (var i = 0; i < 42; i++) {
-                    document.getElementsByClassName("bigSquare").item(i).style.backgroundColor = "white";
-                }
-                for (var i = 0; i < 7; i++) {
-                    bottoms[i] = 5;
-                }
-                currentTurn = 2 * (Math.floor(Math.random() * 5000) + 1);
-                // document.getElementById("turn").innerHTML = currentTurn;
-                changeCounter();
-            }
-        
-        // These function deal with checking if there are four pieces of the the same color in a row. In the following comments, the term "target piece" means "the topmost piece in the nth column."
-        
-            // Counts the number of pieces of the current turn's color adjacent on the left of the target piece.
-            function onLeft(n) {
+            // Counts the number of pieces of the current turn's color directly west of the target piece.
+            function west(n) {
                 var level = bottoms[n];
                 var count = 0;
 
@@ -68,8 +78,8 @@
                 return count;
             }
 
-            // Counts the number of pieces of the current turn's color adjacent on the right of the target piece.
-            function onRight(n) {
+            // Counts the number of pieces of the current turn's color directly east of the target piece.
+            function east(n) {
                 var level = bottoms[n];
                 var count = 0;
 
@@ -84,8 +94,8 @@
                 return count;
             }
 
-            // Counts the number of pieces of the current turn's color underneath the target piece.
-            function below(n) {
+            // Counts the number of pieces of the current turn's color directly south of the target piece.
+            function south(n) {
                 var level = bottoms[n];
                 var count = 0;
 
@@ -100,8 +110,8 @@
                 return count;
             }
 
-            // Counts the number of adjacent pieces of the current turn's color north-west of the target piece.
-            function onNW(n) {
+            // Counts the number of pieces of the current turn's color directly northwest of the target piece.
+            function northwest(n) {
                 var level = bottoms[n];
                 var count = 0;
 
@@ -116,8 +126,8 @@
                 return count;
             }
 
-            // Counts the number of adjacent pieces of the current turn's color south-east of the target piece.
-            function onSE(n) {
+            // Counts the number of pieces of the current turn's color directly southeast of the target piece.
+            function southeast(n) {
                 var level = bottoms[n];
                 var count = 0;
 
@@ -132,8 +142,8 @@
                 return count;
             }
 
-            // Counts the number of adjacent pieces of the current turn's color north-east of the target piece.
-            function onNE(n) {
+            // Counts the number of pieces of the current turn's color directly northeast of the target piece.
+            function northeast(n) {
                 var level = bottoms[n];
                 var count = 0;
 
@@ -148,8 +158,8 @@
                 return count;
             }
 
-            // Counts the number of adjacent pieces of the current turn's color south-west of the target piece.
-            function onSW(n) {
+            // Counts the number pieces of the current turn's color directly southwest of the target piece.
+            function southwest(n) {
                 var level = bottoms[n];
                 var count = 0;
 
@@ -165,48 +175,114 @@
             }
 
             // Checks if the target piece is part of a win.
-            function win(n) {
-                var hz = onLeft(n) + onRight(n) + 1;
-                var vt = below(n) + 1;
-                var dg = onNW(n) + onSE(n) + 1;
-                var ad = onNE(n) + onSW(n) + 1;
+            function checkWin(n) {
+                var hz = west(n) + east(n) + 1;
+                var vt = south(n) + 1;
+                var dg = northwest(n) + southeast(n) + 1;
+                var ad = northeast(n) + southwest(n) + 1;
                 
+                // Un-comment to see how close the target piece is to causing a win in each direction.
                 // document.getElementById("hz").innerHTML = "horizontal: " + hz;
                 // document.getElementById("vt").innerHTML = "vertical: " + vt;
-                // document.getElementById("dg").innerHTML = "diagonal: " +dg;
+                // document.getElementById("dg").innerHTML = "diagonal: " + dg;
                 // document.getElementById("ad").innerHTML = "anti-diagonal: " + ad;
 
                 return (hz >= 4) || (vt >= 4) || (dg >= 4) || (ad >= 4);
             }
 
         
-        // Given n, puts a piece of the current turn's color into the bottom-most square of the nth column.
-        function dropPiece(n) {
-            
-            // Grabs the bottom-most square in the nth column.
-            var square = document.getElementsByClassName("column").item(n)
-                .getElementsByClassName("bigSquare").item(bottoms[n]);
-            
-            // Drops a piece of the current turn's color into that square.
-            square.style.backgroundColor = color(currentTurn);
-            
-            if (win(n)) {
-                    
-                // This prevents further pieces from being played.
-                for (var i = 0; i < 7; i++) {
-                    bottoms[i] = -1;
+        // The following functions are directly called by the user.
+        
+            // Makes the game ready to start.
+            function start() {
+
+                // Clears the game board.
+                for (var i = 0; i < 42; i++) {
+                    document.getElementsByClassName("bigSquare").item(i).style.backgroundColor = "white";
                 }
 
-                // Changes the entire turn counter to be of the winning color.
-                for (var i = 0; i < 8; i++) {
-                    document.getElementsByClassName("smallSquare")
-                        .item(i + 1).style.backgroundColor = color(currentTurn);
+                // Updates things.
+                didSomebodyWin = false;
+                document.getElementById("instructions").innerHTML =
+                    "Click on a column to drop in a piece. Upcoming pieces are shown below.";
+                for (var i = 0; i < 7; i++) {
+                    bottoms[i] = 5;
+                }
+                currentTurn = 2 * (Math.floor(Math.random() * 5000) + 1);
+                changeCounter();
+
+                // Erases the entire history.
+                for (var i = 0; i < 42; i++) {
+                    history[i] = -1;
+                }
+
+                // Un-comment to see the game history and the first value of currentTurn.
+                // document.getElementById("turn").innerHTML = "first turn: " + currentTurn;
+                // printHistory();
+            }
+
+            // Makes a move in the nth column.
+            function dropPiece(n) {
+                if (didSomebodyWin == false) {
+
+                    // Drops a piece of the current turn's color into the bottom-most empty square in the nth column.
+                    document.getElementsByClassName("column").item(n)
+                        .getElementsByClassName("bigSquare").item(bottoms[n])
+                        .style.backgroundColor = color(currentTurn);
+
+                    // Updates things.
+                    didSomebodyWin = checkWin(n);
+                    if (didSomebodyWin == true) {
+                        if (color(currentTurn) == "red") {
+                            document.getElementById("instructions").innerHTML = "Red wins!";
+                        }
+                        if (color(currentTurn) == "blue") {
+                            document.getElementById("instructions").innerHTML = "Blue wins!";
+                        }
+                    }
+                    bottoms[n]--;
+                    currentTurn++;
+                    changeCounter();
+
+                    // Writes the move to history.
+                    for (var i = 0; history[i] != -1; i++);
+                    history[i] = n;
+
+                    // Un-comment to see the game history.
+                    // printHistory();
                 }
             }
-            else {
-                bottoms[n]--;
-                currentTurn++;
+
+            // Undoes the most recent move.
+            function undo() {
+
+                // Clears the topmost nonempty square of the column in which the most recent piece was played.
+                for (var i = 0; history[i] != -1; i++);
+                document.getElementsByClassName("column").item(history[i - 1])
+                    .getElementsByClassName("bigSquare").item(bottoms[history[i - 1]] + 1)
+                    .style.backgroundColor = "white";
+
+                // Updates things.
+                didSomebodyWin = false;
+                document.getElementById("instructions").innerHTML =
+                    "Click on a column to drop in a piece. Upcoming pieces are shown below.";
+                bottoms[history[i - 1]]++;
+                currentTurn--;
                 changeCounter();
+
+                // Erases the most recent move from history.
+                history[i - 1] = -1;
+
+                // Un-comment to see the game history.
+                // printHistory();
+            }
+
+        // This function is just for testing.
+        function printHistory() {
+            document.getElementById("winThing").innerHTML = "win? " + didSomebodyWin;
+            document.getElementById("hstry").innerHTML = " ";
+            for (var i = 0; i < 42; i++) {
+                document.getElementById("hstry").innerHTML += history[i] + " ";
             }
         }
     </script>
@@ -279,7 +355,7 @@
             </div>
         </div>
             
-        <p>Click on a column to drop in a piece. Upcoming pieces are shown below.</p>
+        <p id="instructions"></p>
 
         <div class = "meter">
             <div class="smallSquare">></div>
@@ -293,11 +369,19 @@
             <div class="smallSquare"></div>
         </div>
 
-        <p><button onclick="start()">New Game</button>&emsp;&emsp;<a href="about.html"><button>What is this?</button></a></p>
+        <p>
+            <button onclick="start()">New game.</button>&emsp;&emsp;
+            <button onclick="undo()">Undo.</button>&emsp;&emsp;
+            <a href="about.html"><button>What is this?</button></a>
+        </p>
+        
+        <!--These things are for testing purposes.-->
+        <!--<p id="winThing"></p>
         <p id="turn"></p>
         <p id="hz"></p>
         <p id="vt"></p>
         <p id="dg"></p>
         <p id="ad"></p>
+        <p id="hstry"></p>-->
     </body>
 </html>
