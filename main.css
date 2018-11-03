@@ -9,14 +9,15 @@ p {
     margin: auto;
     padding: 10px;
     font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
-    font-size: 16px;
+    font-size: 14px;
     text-align: center;
 }
 
 button {
     -webkit-appearance: none;
     height: 20px;
-    width: 100px;
+    width: 120px;
+    margin-top: 10px;
     font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
     font-size: 14px;
 }
@@ -49,7 +50,11 @@ button {
     text-align: center;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 800px) {
+    h1 {
+        font-size: 20px;
+    }
+    
     .bigSquare {
         width: 10vw;
         height: 10vw;
@@ -66,16 +71,16 @@ button {
     }
 }
 
-@media (min-width: 1001px) {
+@media (min-width: 801px) {
     .bigSquare{
-        width: 100px;
-        height: 100px;
+        width: 80px;
+        height: 80px;
     }
     
     .smallSquare {
-        width: 60px;
-        height: 60px;
-        font-size: 40px;
+        width: 48px;
+        height: 48px;
+        font-size: 32px;
     }
     
     .buttonHolder {
