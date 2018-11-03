@@ -45,11 +45,6 @@ button {
     text-align: center;
 }
 
-.buttonHolder {
-    display: table-cell;
-    text-align: center;
-}
-
 @media (max-width: 800px) {
     h1 {
         font-size: 20px;
@@ -65,10 +60,6 @@ button {
         height: 6vw;
         font-size: 4vw;
     }
-    
-    .buttonHolder {
-        width: 30vw;
-    }
 }
 
 @media (min-width: 801px) {
@@ -81,9 +72,5 @@ button {
         width: 48px;
         height: 48px;
         font-size: 32px;
-    }
-    
-    .buttonHolder {
-        width: 300px;
     }
 }

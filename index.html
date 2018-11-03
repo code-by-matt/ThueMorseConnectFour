@@ -258,26 +258,30 @@
 
             // Undoes the most recent move.
             function undo() {
+                
+                // Only works if history is nonempty.
+                if (history[0] != -1) {
+                    
+                    // Clears the topmost nonempty square of the column in which the most recent piece was played.
+                    for (var i = 0; (history[i] != -1 && i < 42); i++);
+                    document.getElementsByClassName("row").item(bottoms[history[i - 1]] + 1)
+                        .getElementsByClassName("bigSquare").item(history[i - 1])
+                        .style.backgroundColor = "white";
 
-                // Clears the topmost nonempty square of the column in which the most recent piece was played.
-                for (var i = 0; (history[i] != -1 && i < 42); i++);
-                document.getElementsByClassName("row").item(bottoms[history[i - 1]] + 1)
-                    .getElementsByClassName("bigSquare").item(history[i - 1])
-                    .style.backgroundColor = "white";
+                    // Updates things.
+                    didSomebodyWin = false;
+                    document.getElementById("instructions").innerHTML =
+                        "Click on a column to drop in a piece. Upcoming pieces are shown below.";
+                    bottoms[history[i - 1]]++;
+                    currentTurn--;
+                    changeCounter();
 
-                // Updates things.
-                didSomebodyWin = false;
-                document.getElementById("instructions").innerHTML =
-                    "Click on a column to drop in a piece. Upcoming pieces are shown below.";
-                bottoms[history[i - 1]]++;
-                currentTurn--;
-                changeCounter();
+                    // Erases the most recent move from history.
+                    history[i - 1] = -1;
 
-                // Erases the most recent move from history.
-                history[i - 1] = -1;
-
-                // Un-comment to see the game history.
-                // printHistory();
+                    // Un-comment to see the game history.
+                    printHistory();
+                }
             }
 
         // This function is just for testing.
@@ -378,12 +382,12 @@
         </div>
         
         <!--These things are for testing purposes.-->
-        <!--<p id="winThing"></p>
+        <p id="winThing"></p>
         <p id="turn"></p>
         <p id="hz"></p>
         <p id="vt"></p>
         <p id="dg"></p>
         <p id="ad"></p>
-        <p id="hstry"></p>-->
+        <p id="hstry"></p>
     </body>
 </html>
