@@ -16,6 +16,7 @@ p {
 button {
     -webkit-appearance: none;
     height: 20px;
+    width: 100px;
     font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
     font-size: 14px;
 }
@@ -61,7 +62,7 @@ button {
     }
     
     .buttonHolder {
-        width: 20vw;
+        width: 30vw;
     }
 }
 
@@ -78,6 +79,6 @@ button {
     }
     
     .buttonHolder {
-        width: 200px;
+        width: 300px;
     }
 }
