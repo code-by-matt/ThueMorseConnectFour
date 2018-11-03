@@ -61,7 +61,7 @@ button {
     }
     
     .buttonHolder {
-        width: 24vw;
+        width: 10vw;
     }
 }
 
@@ -78,6 +78,6 @@ button {
     }
     
     .buttonHolder {
-        width: 240px;
+        width: 100px;
     }
 }
