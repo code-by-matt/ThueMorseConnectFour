@@ -1,5 +1,5 @@
 // This boolean states whether or not the game has been won.
-        var didSomebodyWin = false;
+var didSomebodyWin = false;
 
 // This number determines the color of the next piece to be played.
 // The start() method sets this number to a random even integer between 2 and 10000,
